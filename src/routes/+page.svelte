@@ -8,6 +8,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { upvoteItem, type SheetItem } from '$lib/api/sheets';
+	import { browser } from '$app/environment';
 
 	const { data } = $props();
 
@@ -21,13 +22,52 @@
 		})
 	);
 
+	// Load voted items from localStorage
+	let votedItemIds = $state<Set<string>>(new Set());
+
+	$effect(() => {
+		if (browser) {
+			const stored = localStorage.getItem('please_dont_be_a_jerk');
+			if (stored) {
+				try {
+					const parsed = JSON.parse(stored);
+					votedItemIds = new Set(Array.isArray(parsed) ? parsed : []);
+				} catch (err) {
+					console.error('Failed to parse voted items:', err);
+					votedItemIds = new Set();
+				}
+			}
+		}
+	});
+
+	function hasVoted(itemId: string): boolean {
+		return votedItemIds.has(itemId);
+	}
+
+	function markAsVoted(itemId: string) {
+		votedItemIds.add(itemId);
+		// Trigger reactivity by reassigning the Set
+		votedItemIds = new Set(votedItemIds);
+		if (browser) {
+			localStorage.setItem('please_dont_be_a_jerk', JSON.stringify([...votedItemIds]));
+		}
+	}
+
 	async function handleUpvote(item: SheetItem) {
+		// prevent voting twice
+		if (hasVoted(item.id)) {
+			return;
+		}
+
 		const currentVotes = item.votes ?? '0';
 		const idx = items.findIndex((i) => i.id === item.id);
+		const newVotes = parseInt(currentVotes, 10) + 1;
+
+		// mark as voted immediately
+		markAsVoted(item.id);
 
 		// optimistic update
 		if (idx !== -1) {
-			const newVotes = parseInt(currentVotes, 10) + 1;
 			items[idx].votes = String(newVotes);
 
 			// re-sort after updating votes
@@ -39,9 +79,15 @@
 		}
 
 		try {
-			await upvoteItem(item);
+			await upvoteItem(item.id, newVotes);
 		} catch (err) {
-			// rollback on error
+			// rollback on error - remove from voted list and restore vote count
+			votedItemIds.delete(item.id);
+			// Trigger reactivity by reassigning the Set
+			votedItemIds = new Set(votedItemIds);
+			if (browser) {
+				localStorage.setItem('please_dont_be_a_jerk', JSON.stringify([...votedItemIds]));
+			}
 			if (idx !== -1) {
 				items[idx].votes = currentVotes;
 				// re-sort after rollback
@@ -71,6 +117,7 @@
 								size="lg"
 								variant="outline"
 								class="px-3 text-xl"
+								disabled={hasVoted(item.id)}
 								onclick={() => handleUpvote(item)}
 							>
 								<span class="text-3xl">☝︎</span>{item.votes} votes

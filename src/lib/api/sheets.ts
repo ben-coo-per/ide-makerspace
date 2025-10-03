@@ -46,11 +46,8 @@ export async function updateItem(id: string, updates: Partial<SheetItem>): Promi
  * Increment the votes for an item
  * Returns the new vote count
  */
-export async function upvoteItem(item: SheetItem): Promise<number> {
-	const currentVotes = parseInt(item.votes ?? '0', 10);
-	const newVotes = currentVotes + 1;
-
-	await updateItem(item.id, { votes: String(newVotes) });
+export async function upvoteItem(itemId: string, newVotes: number): Promise<number> {
+	await updateItem(itemId, { votes: String(newVotes) });
 
 	return newVotes;
 }
