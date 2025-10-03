@@ -3,19 +3,24 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { sheets } from '$lib/server/sheets';
 
-const SPREADSHEET_ID = '1KTHoU7v1gfY5F8Vtdt-FszTLeu9I1Hl4S0rnskHIVNM';
-const SHEET_NAME = 'Sheet1';
+const SPREADSHEET_ID = '1x81hhR-Fdw7UBg3zQq4VBbODPUk5rFghpKNhV1ZfjPU';
+const SHEET_NAME = 'WANTS';
 const HEADER_RANGE = `${SHEET_NAME}!1:1`;
-const DATA_RANGE = `${SHEET_NAME}!A2:H`;
+const DATA_RANGE = `${SHEET_NAME}!A2:F`;
 
 // pull headers + rows into an array of { header1: val1, ... }
 async function fetchAll(): Promise<Record<string, string>[]> {
-	// 1) headers
+	// 1) headers (normalize: trim + lowercase so consumers can rely on predictable keys)
 	const headerRes = await sheets.spreadsheets.values.get({
 		spreadsheetId: SPREADSHEET_ID,
 		range: HEADER_RANGE
 	});
-	const headers = headerRes.data.values?.[0] ?? [];
+	const rawHeaders = headerRes.data.values?.[0] ?? [];
+	const headers: string[] = rawHeaders.map((h) =>
+		String(h ?? '')
+			.trim()
+			.toLowerCase()
+	);
 
 	// 2) data
 	const dataRes = await sheets.spreadsheets.values.get({
@@ -46,13 +51,19 @@ export const GET: RequestHandler = async ({ url }) => {
 		return json(record);
 	}
 
-	// if no id, return all records ordered by date and that have not already passed
-	const today = new Date();
-	all = all.filter((r) => new Date(r.datetime) >= today);
+	// helper to find common date field names and return a Date or Invalid Date
+	const extractDate = (r: Record<string, string>) => {
+		const dateCandidates = [r.datetime, r.date, r['date/time'], r['date time'], r['datetime']];
+		const dateStr = dateCandidates.find((d) => d && String(d).trim() !== '') ?? '';
+		return new Date(dateStr);
+	};
+
 	all = all.sort((a, b) => {
-		const dateA = new Date(a.datetime);
-		const dateB = new Date(b.datetime);
-		return dateA.getTime() - dateB.getTime();
+		const dateA = extractDate(a);
+		const dateB = extractDate(b);
+		const ta = isNaN(dateA.getTime()) ? Infinity : dateA.getTime();
+		const tb = isNaN(dateB.getTime()) ? Infinity : dateB.getTime();
+		return ta - tb;
 	});
 
 	return json(all);
@@ -82,14 +93,25 @@ export const PUT: RequestHandler = async ({ request }) => {
 	const idx = all.findIndex((r) => r.id === payload.id);
 	if (idx === -1) return json({ error: 'Not found' }, { status: 404 });
 
-	// re-fetch headers to compute exact range
+	// re-fetch headers to compute exact range and normalize them to match fetchAll()
 	const headerRes = await sheets.spreadsheets.values.get({
 		spreadsheetId: SPREADSHEET_ID,
 		range: HEADER_RANGE
 	});
-	const headers = headerRes.data.values?.[0] ?? [];
+	const rawHeaders = headerRes.data.values?.[0] ?? [];
+	const headers: string[] = rawHeaders.map((h) =>
+		String(h ?? '')
+			.trim()
+			.toLowerCase()
+	);
 
-	const updatedRow = headers.map((h) => payload[h] ?? all[idx][h] ?? '');
+	// build updated row using normalized header keys (payload keys should be normalized too)
+	const normalizedPayload: Record<string, unknown> = {};
+	Object.keys(payload).forEach((k) => {
+		normalizedPayload[String(k).trim().toLowerCase()] = payload[k];
+	});
+
+	const updatedRow = headers.map((h) => normalizedPayload[h] ?? all[idx][h] ?? '');
 	const sheetRow = idx + 2; // +2: because headers are row 1
 
 	const lastCol = String.fromCharCode(65 + headers.length - 1); // e.g. 'C'
