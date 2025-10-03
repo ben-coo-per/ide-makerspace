@@ -4,10 +4,14 @@
 		CardHeader,
 		CardTitle,
 		CardDescription,
-		CardAction
+		CardAction,
+		CardContent
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { upvoteItem, type SheetItem } from '$lib/api/sheets';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { Label } from '$lib/components/ui/label';
+	import { upvoteItem, createItem, type SheetItem } from '$lib/api/sheets';
 	import { browser } from '$app/environment';
 
 	const { data } = $props();
@@ -24,6 +28,12 @@
 
 	// Load voted items from localStorage
 	let votedItemIds = $state<Set<string>>(new Set());
+
+	// Form state
+	let showForm = $state(false);
+	let formTitle = $state('');
+	let formDescription = $state('');
+	let isSubmitting = $state(false);
 
 	$effect(() => {
 		if (browser) {
@@ -100,18 +110,111 @@
 			console.error('Failed to upvote:', err);
 		}
 	}
+
+	async function handleSubmit() {
+		if (!formTitle.trim()) {
+			return;
+		}
+
+		isSubmitting = true;
+
+		try {
+			// Create new item with initial votes of 0
+			// Match the sheet columns: id, title, description, votes, created_at, type, requested_by
+			const newItem: SheetItem = {
+				id: crypto.randomUUID(),
+				title: formTitle.trim(),
+				description: formDescription.trim(),
+				votes: '0',
+				created_at: new Date().toISOString(),
+				type: 'tool', // default type
+				requested_by: '' // can be added later if needed
+			};
+
+			await createItem(newItem);
+
+			// Add to local list and re-sort
+			items = [...items, newItem].sort((a, b) => {
+				const votesA = parseInt(a.votes ?? '0', 10);
+				const votesB = parseInt(b.votes ?? '0', 10);
+				return votesB - votesA;
+			});
+
+			// Reset form
+			formTitle = '';
+			formDescription = '';
+			showForm = false;
+		} catch (err) {
+			console.error('Failed to create item:', err);
+			alert('Failed to submit. Please try again.');
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-4 p-4">
-	<h1 class="text-2xl font-bold">Wants</h1>
+	<div class="flex items-center justify-between">
+		<h1 class="text-2xl font-bold">Wants</h1>
+		<Button onclick={() => (showForm = !showForm)}>
+			{showForm ? 'Cancel' : '+ Add Want'}
+		</Button>
+	</div>
+
+	{#if showForm}
+		<Card>
+			<CardHeader>
+				<CardTitle>Submit a New Want</CardTitle>
+				<CardDescription>Share something you'd like to see at the makerspace</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleSubmit();
+					}}
+					class="space-y-4"
+				>
+					<div class="space-y-2">
+						<Label for="title">Title</Label>
+						<Input
+							id="title"
+							bind:value={formTitle}
+							placeholder="e.g., 3D Printer, Laser Cutter, Workshop"
+							required
+							disabled={isSubmitting}
+						/>
+					</div>
+					<div class="space-y-2">
+						<Label for="description">Description (optional)</Label>
+						<Textarea
+							id="description"
+							bind:value={formDescription}
+							placeholder="Add more details about your want..."
+							disabled={isSubmitting}
+							rows={3}
+						/>
+					</div>
+					<div class="flex gap-2">
+						<Button type="submit" disabled={isSubmitting || !formTitle.trim()}>
+							{isSubmitting ? 'Submitting...' : 'Submit'}
+						</Button>
+						<Button type="button" variant="outline" onclick={() => (showForm = false)}>
+							Cancel
+						</Button>
+					</div>
+				</form>
+			</CardContent>
+		</Card>
+	{/if}
 
 	{#if items.length}
 		<div class="space-y-3">
 			{#each items as item}
-				<Card class="max-w-lg transition-shadow hover:shadow-lg">
+				<Card class="transition-shadow hover:shadow-lg">
 					<CardHeader>
 						<CardTitle class="text-xl font-bold">{item.title ?? 'Untitled'}</CardTitle>
-						<CardDescription>{item.description ?? item.desc ?? item.details ?? ''}</CardDescription>
+						<CardDescription>{item.description ?? ''}</CardDescription>
 						<CardAction>
 							<Button
 								size="lg"

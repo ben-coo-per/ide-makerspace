@@ -53,7 +53,14 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	// helper to find common date field names and return a Date or Invalid Date
 	const extractDate = (r: Record<string, string>) => {
-		const dateCandidates = [r.datetime, r.date, r['date/time'], r['date time'], r['datetime']];
+		const dateCandidates = [
+			r.created_at,
+			r['created at'],
+			r.datetime,
+			r.date,
+			r['date/time'],
+			r['date time']
+		];
 		const dateStr = dateCandidates.find((d) => d && String(d).trim() !== '') ?? '';
 		return new Date(dateStr);
 	};
