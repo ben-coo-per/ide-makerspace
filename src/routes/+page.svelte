@@ -11,6 +11,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select';
 	import { upvoteItem, createItem, type SheetItem } from '$lib/api/sheets';
 	import { browser } from '$app/environment';
 
@@ -33,6 +34,8 @@
 	let showForm = $state(false);
 	let formTitle = $state('');
 	let formDescription = $state('');
+	let formType = $state<'tool' | 'consumable' | undefined>();
+	let formRequestedBy = $state('');
 	let isSubmitting = $state(false);
 
 	$effect(() => {
@@ -127,8 +130,8 @@
 				description: formDescription.trim(),
 				votes: '0',
 				created_at: new Date().toISOString(),
-				type: 'tool', // default type
-				requested_by: '' // can be added later if needed
+				type: formType ?? '',
+				requested_by: formRequestedBy.trim()
 			};
 
 			await createItem(newItem);
@@ -143,6 +146,8 @@
 			// Reset form
 			formTitle = '';
 			formDescription = '';
+			formType = 'tool';
+			formRequestedBy = '';
 			showForm = false;
 		} catch (err) {
 			console.error('Failed to create item:', err);
@@ -151,14 +156,17 @@
 			isSubmitting = false;
 		}
 	}
+
+	const types = [
+		{ value: 'tool', label: 'Tool' },
+		{ value: 'consumable', label: 'Consumable' }
+	];
+	const selectTrigger = $derived(types.find((f) => f.value === formType)?.label ?? 'Select a type');
 </script>
 
 <div class="mx-auto max-w-3xl space-y-4 p-4">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Wants</h1>
-		<Button onclick={() => (showForm = !showForm)}>
-			{showForm ? 'Cancel' : '+ Add Want'}
-		</Button>
+		<h1 class="text-2xl font-bold">I Want Something</h1>
 	</div>
 
 	{#if showForm}
@@ -195,6 +203,27 @@
 							rows={3}
 						/>
 					</div>
+					<div class="space-y-2">
+						<Label for="type">Type</Label>
+						<Select.Root type="single" disabled={isSubmitting} bind:value={formType}>
+							<Select.Trigger id="type">
+								{selectTrigger}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Item value="tool">Tool</Select.Item>
+								<Select.Item value="consumable">Consumable</Select.Item>
+							</Select.Content>
+						</Select.Root>
+					</div>
+					<div class="space-y-2">
+						<Label for="requested_by">Requested By</Label>
+						<Input
+							id="requested_by"
+							bind:value={formRequestedBy}
+							placeholder="Your name"
+							disabled={isSubmitting}
+						/>
+					</div>
 					<div class="flex gap-2">
 						<Button type="submit" disabled={isSubmitting || !formTitle.trim()}>
 							{isSubmitting ? 'Submitting...' : 'Submit'}
@@ -208,6 +237,9 @@
 		</Card>
 	{/if}
 
+	{#if !showForm}
+		<Button class="w-full" size="lg" onclick={() => (showForm = !showForm)}>Add Something</Button>
+	{/if}
 	{#if items.length}
 		<div class="space-y-3">
 			{#each items as item}
