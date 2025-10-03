@@ -6,7 +6,7 @@ import { sheets } from '$lib/server/sheets';
 const SPREADSHEET_ID = '1x81hhR-Fdw7UBg3zQq4VBbODPUk5rFghpKNhV1ZfjPU';
 const SHEET_NAME = 'WANTS';
 const HEADER_RANGE = `${SHEET_NAME}!1:1`;
-const DATA_RANGE = `${SHEET_NAME}!A2:F`;
+const DATA_RANGE = `${SHEET_NAME}!A2:G`;
 
 // pull headers + rows into an array of { header1: val1, ... }
 async function fetchAll(): Promise<Record<string, string>[]> {
