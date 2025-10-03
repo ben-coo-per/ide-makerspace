@@ -165,8 +165,12 @@
 </script>
 
 <div class="mx-auto max-w-3xl space-y-4 p-4">
-	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">I Want Something</h1>
+	<div class="flex flex-col items-start">
+		<h1 class="text-4xl font-bold">Wants</h1>
+		<p class="text-lg text-muted-foreground">
+			Submit and vote for what you'd like to see in the makerspace.
+		</p>
+		<p class="text-sm text-muted-foreground">Also, please don't spam items or votes.</p>
 	</div>
 
 	{#if showForm}
