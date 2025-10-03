@@ -43,16 +43,10 @@ async function fetchAll(): Promise<Record<string, string>[]> {
 export const GET: RequestHandler = async () => {
 	const all = await fetchAll();
 
-	// Sort by priority if available (assuming priority is: high, medium, low)
-	const priorityOrder: Record<string, number> = {
-		high: 1,
-		medium: 2,
-		low: 3
-	};
-
+	// Sort by priority (0 = highest, 4 = lowest)
 	const sorted = all.sort((a, b) => {
-		const priorityA = priorityOrder[a.priority?.toLowerCase()] ?? 999;
-		const priorityB = priorityOrder[b.priority?.toLowerCase()] ?? 999;
+		const priorityA = parseInt(a.priority?.trim()) || 999;
+		const priorityB = parseInt(b.priority?.trim()) || 999;
 		return priorityA - priorityB;
 	});
 

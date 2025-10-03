@@ -15,18 +15,47 @@
 	// needs returned from the API; headers are normalized to lowercase
 	const needs: Need[] = data?.needs ?? [];
 
-	// Map priority to badge variant
-	function getPriorityVariant(priority: string): 'default' | 'secondary' | 'destructive' {
-		const p = priority?.toLowerCase();
-		if (p === 'high') return 'destructive';
-		if (p === 'medium') return 'default';
-		return 'secondary';
+	// Map priority to badge variant and custom color classes
+	function getPriorityStyles(priority: string): {
+		variant: 'default' | 'secondary' | 'destructive' | 'outline';
+		class: string;
+	} {
+		const p = priority?.trim();
+
+		switch (p) {
+			case '0':
+				return { variant: 'destructive', class: 'bg-red-500 hover:bg-red-600' };
+			case '1':
+				return { variant: 'default', class: 'bg-orange-500 hover:bg-orange-600 text-white' };
+			case '2':
+				return { variant: 'default', class: 'bg-yellow-500 hover:bg-yellow-600 text-black' };
+			case '3':
+				return { variant: 'default', class: 'bg-lime-500 hover:bg-lime-600 text-black' };
+			case '4':
+				return { variant: 'default', class: 'bg-green-500 hover:bg-green-600 text-white' };
+			default:
+				return { variant: 'secondary', class: '' };
+		}
 	}
 
-	// Format priority text
+	// Format priority text with better descriptions
 	function formatPriority(priority: string): string {
-		if (!priority) return 'Low';
-		return priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase();
+		const p = priority?.trim();
+
+		switch (p) {
+			case '0':
+				return 'Critical';
+			case '1':
+				return 'Urgent';
+			case '2':
+				return 'Important';
+			case '3':
+				return 'Helpful';
+			case '4':
+				return 'Nice to Have';
+			default:
+				return 'Unknown';
+		}
 	}
 </script>
 
@@ -56,7 +85,8 @@
 								{/if}
 							</div>
 							{#if need.priority}
-								<Badge variant={getPriorityVariant(need.priority)}>
+								{@const styles = getPriorityStyles(need.priority)}
+								<Badge variant={styles.variant} class={styles.class}>
 									{formatPriority(need.priority)}
 								</Badge>
 							{/if}
