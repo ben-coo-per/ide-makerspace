@@ -242,7 +242,9 @@
 	{/if}
 
 	{#if !showForm}
-		<Button class="w-full" size="lg" onclick={() => (showForm = !showForm)}>Add Something</Button>
+		<Button class="w-full " size="lg" onclick={() => (showForm = !showForm)}
+			>Add a new tool or consumable</Button
+		>
 	{/if}
 	{#if items.length}
 		<div class="space-y-3">
