@@ -17,10 +17,10 @@
 				<a href="/" class="text-lg font-bold">IDE MakerSpace</a>
 				<div class="flex gap-8 text-sm">
 					<a
-						href="/"
+						href="/wants"
 						class="transition-colors hover:text-foreground/80"
-						class:text-foreground={$page.url.pathname === '/'}
-						class:text-slate-500={$page.url.pathname !== '/'}
+						class:text-foreground={$page.url.pathname === '/wants'}
+						class:text-slate-500={$page.url.pathname !== '/wants'}
 					>
 						Wants
 					</a>

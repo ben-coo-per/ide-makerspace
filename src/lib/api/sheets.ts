@@ -1,14 +1,14 @@
 /**
- * Client-side API utilities for interacting with the sheets endpoint
+ * Client-side API utilities for interacting with the wants endpoint
  */
 
 export type SheetItem = Record<string, string>;
 
 /**
- * Fetch all items from the sheets API
+ * Fetch all items from the wants API
  */
 export async function fetchItems(): Promise<SheetItem[]> {
-	const response = await fetch('/api/sheets');
+	const response = await fetch('/api/wants');
 	if (!response.ok) {
 		throw new Error(`Failed to fetch items: ${response.statusText}`);
 	}
@@ -19,7 +19,7 @@ export async function fetchItems(): Promise<SheetItem[]> {
  * Fetch a single item by ID
  */
 export async function fetchItem(id: string): Promise<SheetItem> {
-	const response = await fetch(`/api/sheets?id=${encodeURIComponent(id)}`);
+	const response = await fetch(`/api/wants?id=${encodeURIComponent(id)}`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch item: ${response.statusText}`);
 	}
@@ -30,7 +30,7 @@ export async function fetchItem(id: string): Promise<SheetItem> {
  * Update an item in the sheet (partial update)
  */
 export async function updateItem(id: string, updates: Partial<SheetItem>): Promise<void> {
-	const response = await fetch('/api/sheets', {
+	const response = await fetch('/api/wants', {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ id, ...updates })
@@ -56,7 +56,7 @@ export async function upvoteItem(itemId: string, newVotes: number): Promise<numb
  * Create a new item
  */
 export async function createItem(item: SheetItem): Promise<SheetItem> {
-	const response = await fetch('/api/sheets', {
+	const response = await fetch('/api/wants', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(item)
