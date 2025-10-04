@@ -13,13 +13,14 @@
 <div class="min-h-screen">
 	<nav class="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 		<div class="mx-auto max-w-5xl px-4">
-			<div class="flex h-14 items-center gap-4">
+			<div class="flex h-14 items-center justify-between">
 				<a href="/" class="text-lg font-bold">IDE MakerSpace</a>
-				<div class="flex gap-6 text-sm">
+				<div class="flex gap-8 text-sm">
 					<a
 						href="/"
 						class="transition-colors hover:text-foreground/80"
 						class:text-foreground={$page.url.pathname === '/'}
+						class:text-slate-500={$page.url.pathname !== '/'}
 					>
 						Wants
 					</a>
@@ -27,6 +28,7 @@
 						href="/needs"
 						class="transition-colors hover:text-foreground/80"
 						class:text-foreground={$page.url.pathname === '/needs'}
+						class:text-slate-500={$page.url.pathname !== '/needs'}
 					>
 						Needs
 					</a>
