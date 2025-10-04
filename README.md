@@ -1,38 +1,83 @@
-# sv
+# IDE MakerSpace
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A web app for IDE to vote on what we want in the makerspace and browse list of what the makerspace needs.
 
-## Creating a project
+## Contributing
 
-If you're seeing this, you've probably already done this step. Congrats!
+Contributions are welcome! Please fork the repo and submit a PR.
 
-```sh
-# create a new project in the current directory
-npx sv create
+### Prerequisites
 
-# create a new project in ide_makerspace
-npx sv create ide_makerspace
-```
+- Node.js 18+
+- pnpm (recommended) or npm
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Setup
 
 ```sh
-npm run dev
+# Clone the repo
+git clone https://github.com/ben-coo-per/ide-makerspace.git
+cd ide-makerspace/web-app
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
 ```
 
-## Building
+### Project Structure
 
-To create a production version of your app:
+```
+src/
+├── routes/
+│   ├── /              # Landing page
+│   ├── /wants/        # Community wants (voting & submissions)
+│   ├── /needs/        # Curated needs list
+│   └── /api/
+│       ├── /wants/    # Wants API (Google Sheets: WANTS)
+│       └── /needs/    # Needs API (Google Sheets: NEEDS)
+├── lib/
+│   ├── components/    # shadcn-svelte UI components
+│   └── api/           # Client API utilities
+static/                # Static assets (favicon, og-image)
+```
+
+### Environment Variables
+
+Create a `.env` file:
 
 ```sh
-npm run build
+PRIVATE_GOOGLE_SERVICE_ACCOUNT_KEY={"type": "service_account",...}
 ```
 
-You can preview the production build with `npm run preview`.
+### Tech Stack
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **Framework:** SvelteKit
+- **UI:** shadcn-svelte + Tailwind CSS
+- **Backend:** Google Sheets API
+- **Deployment:** Vercel (recommended)
+
+### Key Features
+
+- **Wants:** Community-driven voting and submissions
+- **Needs:** Curated list for project budget spending
+- **Vote tracking:** localStorage prevents duplicate votes
+- **Real-time updates:** Optimistic UI with API sync
+
+### Building
+
+```sh
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+```
+
+### Deployment
+
+The app uses SvelteKit's auto-adapter. Deploy to Vercel, Netlify, or any Node.js host.
+
+### Questions?
+
+Open an issue or reach out to the IDE MakerSpace volunteers.

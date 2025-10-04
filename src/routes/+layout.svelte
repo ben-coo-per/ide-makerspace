@@ -70,7 +70,28 @@
 			</div>
 		</div>
 	</nav>
-	<main>
+	<main class="min-h-[calc(100vh-3.5rem)]">
 		{@render children?.()}
 	</main>
+	<footer
+		class="border-t bg-background/95 p-4 text-center text-sm text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-background/60"
+	>
+		<div class="mx-auto max-w-3xl">
+			<p>
+				Made by the IDE Makerspace team. View the source code on
+				<a
+					href="https://github.com/ben-coo-per/ide-makerspace"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					GitHub
+				</a>
+			</p>
+		</div>
+		<img
+			src="/monster.png"
+			alt="IDE MakerSpace Logo"
+			class="right-0 bottom-0 float-right -mr-4 h-48 sm:absolute sm:mr-0"
+		/>
+	</footer>
 </div>

@@ -4,7 +4,6 @@ export async function load(event) {
 		throw new Error('Failed to fetch items');
 	}
 	const data = await response.json();
-	console.log('Fetched wants:', data);
 	if (!Array.isArray(data)) {
 		throw new Error('Invalid data format');
 	}
