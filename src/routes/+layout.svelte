@@ -1,13 +1,47 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/stores';
 
 	let { children } = $props();
+
+	// OG image and metadata
+	const siteName = 'IDE MakerSpace';
+	const siteDescription =
+		'Feeding the Makerspace - Submit and vote on items we want, or view a curated list what the makerspace needs';
+	const ogImageUrl = '/og-image.png'; // This will be served from the static folder
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<!-- Favicon -->
+	<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+	<!-- Primary Meta Tags -->
+	<title>{siteName}</title>
+	<meta name="title" content={siteName} />
+	<meta name="description" content={siteDescription} />
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={$page.url.origin} />
+	<meta property="og:title" content={siteName} />
+	<meta property="og:description" content={siteDescription} />
+	<meta property="og:image" content="{$page.url.origin}{ogImageUrl}" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:alt" content="IDE MakerSpace - Feeding the Makerspace" />
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content={$page.url.origin} />
+	<meta property="twitter:title" content={siteName} />
+	<meta property="twitter:description" content={siteDescription} />
+	<meta property="twitter:image" content="{$page.url.origin}{ogImageUrl}" />
+
+	<!-- WhatsApp specific (uses OG tags) -->
+	<meta property="og:site_name" content={siteName} />
 </svelte:head>
 
 <div class="min-h-screen">
