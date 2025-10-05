@@ -73,26 +73,71 @@
 	{#if needs.length}
 		<div class="space-y-3">
 			{#each needs as need}
-				<Card class="transition-shadow hover:shadow-lg">
-					<CardHeader>
-						<div class="flex items-start justify-between gap-4">
-							<div class="flex-1">
-								<CardTitle class="text-xl font-bold">{need.title ?? 'Untitled'}</CardTitle>
-								{#if need.quantity_needed}
-									<CardDescription class="mt-1">
-										Quantity needed: {need.quantity_needed}
-									</CardDescription>
+				{#if need.url}
+					<a href={need.url} target="_blank" rel="noopener noreferrer" class="block">
+						<Card
+							class="cursor-pointer transition-all hover:scale-[1.02] hover:border-primary hover:shadow-lg"
+						>
+							<CardHeader>
+								<div class="flex items-start justify-between gap-4">
+									<div class="flex-1">
+										<CardTitle class="flex items-center gap-2 text-xl font-bold">
+											{need.title ?? 'Untitled'}
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												class="text-muted-foreground"
+											>
+												<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+												<polyline points="15 3 21 3 21 9"></polyline>
+												<line x1="10" y1="14" x2="21" y2="3"></line>
+											</svg>
+										</CardTitle>
+										{#if need.quantity_needed}
+											<CardDescription class="mt-1">
+												Quantity needed: {need.quantity_needed}
+											</CardDescription>
+										{/if}
+									</div>
+									{#if need.priority}
+										{@const styles = getPriorityStyles(need.priority)}
+										<Badge variant={styles.variant} class={styles.class}>
+											{formatPriority(need.priority)}
+										</Badge>
+									{/if}
+								</div>
+							</CardHeader>
+						</Card>
+					</a>
+				{:else}
+					<Card class="transition-shadow hover:shadow-lg">
+						<CardHeader>
+							<div class="flex items-start justify-between gap-4">
+								<div class="flex-1">
+									<CardTitle class="text-xl font-bold">{need.title ?? 'Untitled'}</CardTitle>
+									{#if need.quantity_needed}
+										<CardDescription class="mt-1">
+											Quantity needed: {need.quantity_needed}
+										</CardDescription>
+									{/if}
+								</div>
+								{#if need.priority}
+									{@const styles = getPriorityStyles(need.priority)}
+									<Badge variant={styles.variant} class={styles.class}>
+										{formatPriority(need.priority)}
+									</Badge>
 								{/if}
 							</div>
-							{#if need.priority}
-								{@const styles = getPriorityStyles(need.priority)}
-								<Badge variant={styles.variant} class={styles.class}>
-									{formatPriority(need.priority)}
-								</Badge>
-							{/if}
-						</div>
-					</CardHeader>
-				</Card>
+						</CardHeader>
+					</Card>
+				{/if}
 			{/each}
 		</div>
 	{:else}
