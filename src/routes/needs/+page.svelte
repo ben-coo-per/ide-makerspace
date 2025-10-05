@@ -7,6 +7,7 @@
 		CardContent
 	} from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
+	import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
 
 	const { data } = $props();
 
@@ -73,26 +74,58 @@
 	{#if needs.length}
 		<div class="space-y-3">
 			{#each needs as need}
-				<Card class="transition-shadow hover:shadow-lg">
-					<CardHeader>
-						<div class="flex items-start justify-between gap-4">
-							<div class="flex-1">
-								<CardTitle class="text-xl font-bold">{need.title ?? 'Untitled'}</CardTitle>
-								{#if need.quantity_needed}
-									<CardDescription class="mt-1">
-										Quantity needed: {need.quantity_needed}
-									</CardDescription>
+				{#if need.url && need.url.trim()}
+					<a href={need.url} target="_blank" rel="noopener noreferrer" class="group block">
+						<Card
+							class="transition-all duration-200 group-hover:border-primary hover:scale-[1.01] hover:shadow-lg"
+						>
+							<CardHeader>
+								<div class="flex items-start justify-between gap-4">
+									<div class="flex-1">
+										<div class="flex items-center gap-2">
+											<CardTitle class="text-xl font-bold">{need.title ?? 'Untitled'}</CardTitle>
+											<ExternalLinkIcon
+												class="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary"
+											/>
+										</div>
+										{#if need.quantity_needed}
+											<CardDescription class="mt-1">
+												Quantity needed: {need.quantity_needed}
+											</CardDescription>
+										{/if}
+									</div>
+									{#if need.priority}
+										{@const styles = getPriorityStyles(need.priority)}
+										<Badge variant={styles.variant} class={styles.class}>
+											{formatPriority(need.priority)}
+										</Badge>
+									{/if}
+								</div>
+							</CardHeader>
+						</Card>
+					</a>
+				{:else}
+					<Card class="transition-shadow hover:shadow-lg">
+						<CardHeader>
+							<div class="flex items-start justify-between gap-4">
+								<div class="flex-1">
+									<CardTitle class="text-xl font-bold">{need.title ?? 'Untitled'}</CardTitle>
+									{#if need.quantity_needed}
+										<CardDescription class="mt-1">
+											Quantity needed: {need.quantity_needed}
+										</CardDescription>
+									{/if}
+								</div>
+								{#if need.priority}
+									{@const styles = getPriorityStyles(need.priority)}
+									<Badge variant={styles.variant} class={styles.class}>
+										{formatPriority(need.priority)}
+									</Badge>
 								{/if}
 							</div>
-							{#if need.priority}
-								{@const styles = getPriorityStyles(need.priority)}
-								<Badge variant={styles.variant} class={styles.class}>
-									{formatPriority(need.priority)}
-								</Badge>
-							{/if}
-						</div>
-					</CardHeader>
-				</Card>
+						</CardHeader>
+					</Card>
+				{/if}
 			{/each}
 		</div>
 	{:else}
